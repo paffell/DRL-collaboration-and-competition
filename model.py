@@ -26,8 +26,8 @@ class Actor(nn.Module):
         self.seed = torch.manual_seed(seed)
         self.fc1 = nn.Linear(state_size, fc_units)
         self.fc2 = nn.Linear(fc_units, action_size)
-#         self.bn1 = nn.BatchNorm(state_size)
-#         self.bn2 = nn.BatchNorm(fc_units)
+        self.bn1 = nn.BatchNorm1d(state_size)
+        self.bn2 = nn.BatchNorm1d(fc_units)
         self.reset_parameters()
 
     def reset_parameters(self):
@@ -36,8 +36,8 @@ class Actor(nn.Module):
 
     def forward(self, state):
         """Build an actor (policy) network that maps states -> actions."""
-        x = F.relu(self.fc1(state))
-#         x = F.relu(self.bn2(self.fc1(self.bn1(state))))
+#         x = F.relu(self.fc1(state))
+        x = F.relu(self.bn2(self.fc1(self.bn1(state))))
         return F.tanh(self.fc2(x))
 
 
@@ -61,8 +61,8 @@ class Critic(nn.Module):
         self.fc3 = nn.Linear(fc2_units, fc3_units)
         self.fc4 = nn.Linear(fc3_units, 1)
 #         self.fc4 = nn.Linear(fc2_units, 1)
-#         self.bn1 = nn.BatchNorm(state_size)
-#         self.bn2 = nn.BatchNorm(fcs1_units)
+        self.bn1 = nn.BatchNorm1d(state_size)
+        self.bn2 = nn.BatchNorm1d(fcs1_units)
         self.reset_parameters()
 
     def reset_parameters(self):
@@ -73,8 +73,8 @@ class Critic(nn.Module):
 
     def forward(self, state, action):
         """Build a critic (value) network that maps (state, action) pairs -> Q-values."""
-        xs = F.leaky_relu(self.fcs1(state))
-#         xs = F.leaky_relu(self.bn2(self.fcs1(self.bn1(state))))
+#         xs = F.leaky_relu(self.fcs1(state))
+        xs = F.leaky_relu(self.bn2(self.fcs1(self.bn1(state))))
         x = torch.cat((xs, action), dim=1)
         x = F.leaky_relu(self.fc2(x))
         x = F.leaky_relu(self.fc3(x))
