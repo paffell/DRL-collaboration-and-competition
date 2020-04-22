@@ -4,7 +4,7 @@ import random
 import copy
 from collections import namedtuple, deque
 
-from model import Actor, Critic
+from soccer_model import Actor, Critic
 
 import torch
 import torch.nn.functional as F
@@ -62,7 +62,10 @@ class Agent():
         """Save experience in replay memory, and use random sample from buffer to learn."""
         # Save experience / reward
         for i in range(len(state)):
-            self.memory.add(state[i], action[i], reward[i], next_state[i], done[i])
+            # one hot encoding of the action
+            action_encoded = np.zeros(self.action_size)
+            action_encoded[int(action[i])] = 1
+            self.memory.add(state[i], action_encoded, reward[i], next_state[i], done[i])
 
         # Learn every UPDATE_EVERY time steps.
         self.t_step = (self.t_step + 1) % UPDATE_EVERY        #########################
